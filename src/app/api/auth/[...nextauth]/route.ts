@@ -1,11 +1,17 @@
 import dbConnect from "@/db/dbConnect";
 import User from "@/models/User.models";
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions} from "next-auth";
+import GoogleProvider, { GoogleProfile } from "next-auth/providers/google"
+import GitHubProvider, { GithubProfile } from "next-auth/providers/github";
 import  CredentialsProvider  from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import NextAuth from "next-auth/next";
+import {MongoDBAdapter} from "@next-auth/mongodb-adapter"
+import clientPromise from "@/lib/db";
+
 
 const authOptions : NextAuthOptions = {
+    adapter: MongoDBAdapter(clientPromise),
     providers: [
         CredentialsProvider({
             name: 'Credentials',
@@ -29,7 +35,7 @@ const authOptions : NextAuthOptions = {
                     if(!user.isVerified){
                         throw new Error("Please verify your account before logging in");
                     }
-                    const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+                    const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password? user.password : "");
                     if(isPasswordCorrect){
                         return user;
                     }
@@ -40,9 +46,88 @@ const authOptions : NextAuthOptions = {
                     console.log(error);
                 }
             }
+        }),
+        GoogleProvider({
+            clientId: process.env.GOOGLE_ID as string,
+            clientSecret: process.env.GOOGLE_SECRET as string
+        }),
+        GitHubProvider({
+            clientId: process.env.GITHUB_ID as string,
+            clientSecret: process.env.GITHUB_SECRET as string
         })
     ],
     callbacks:{
+        async signIn({user, account, profile}): Promise<any>{
+            await dbConnect();
+            try {
+                if(account?.provider == "google"){
+                    const googleProfile = profile as GoogleProfile;
+                    console.log(googleProfile)
+                    if(!googleProfile?.email_verified){
+                        return false;
+                    }
+                    const existingUser = await User.findOne({email: googleProfile.email});
+                    if(existingUser){
+                        existingUser.oauthProvider = "google";
+                        await existingUser.save();
+                        return "/";
+                    }
+                    const newUser = await User.create({
+                        username: googleProfile.email.split('@')[0],
+                        email: googleProfile.email,
+                        fullName: googleProfile.name,
+                        oauthProvider: "google",
+                        isVerified: true
+                    })
+                    if(!newUser){
+                        return Response.json(
+                            {
+                                success: false,
+                                message: "Error creating user"
+                            },
+                            {status: 500}
+                        )
+                    }
+                    return "/";
+                }
+                else if(account?.provider == "github"){
+                    const githubProfile = profile as GithubProfile;
+                    console.log("githubprofile", githubProfile);
+                    const existingUser = await User.findOne({email: githubProfile.email});
+                    if(existingUser){
+                        existingUser.oauthProvider = "github";
+                        await existingUser.save();
+                        return "/";
+                    }
+                    const newUser = await User.create({
+                        username: githubProfile.email!.split('@')[0],
+                        email: githubProfile.email,
+                        fullName: githubProfile.name,
+                        oauthProvider: "github",
+                        isVerified: true
+                    })
+                    if(!newUser){
+                        return Response.json(
+                            {
+                                success: false,
+                                message: "Error creating user"
+                            },
+                            {status: 500}
+                        )
+                    }
+                    return "/";
+                }
+            } catch (error) {
+                console.log("Error in sign in callback", error);
+                return Response.json(
+                    {
+                        success: false,
+                        message: "Error in sign in callback"
+                    },
+                    {status: 500}
+                )
+            }
+        },
         async jwt({token, user}){
             if(user){
                 token._id = user._id?.toString();
@@ -69,7 +154,7 @@ const authOptions : NextAuthOptions = {
     },
     secret: process.env.NEXT_AUTH_SECRET,
     pages:{
-        signIn: '/sign-in'
+        signIn: '/sign-in',
     }
 }
 

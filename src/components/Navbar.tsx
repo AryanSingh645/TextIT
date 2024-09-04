@@ -25,7 +25,6 @@ export function Navbar() {
   return (
     <div className="relative  w-full">
       <FloatingNav navItems={navItems} />
-
     </div>
   );
 }

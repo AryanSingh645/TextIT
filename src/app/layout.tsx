@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Toaster } from "@/components/ui/toaster";
+import AuthProvider from "@/context/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,12 +18,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className="dark " lang="en">
-      <body className={`${inter.className} bg-gradient-to-b from-transparent to-white dark:from-transparent dark:to-black`}>
-        <Navbar/>
-        <Toaster />
-        {children}
-      </body>
+    <html className="dark" lang="en">
+      <AuthProvider>
+        <body className={`${inter.className} bg-gradient-to-b from-transparent to-white dark:from-transparent dark:to-black`}>
+          <Navbar/>
+          <Toaster />
+          {children}
+        </body>
+      </AuthProvider>
     </html>
   );
 }

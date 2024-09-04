@@ -8,7 +8,8 @@ export interface User extends Document{
     avatar: string,
     verifyCode: string,
     verifyCodeExpiry: Date,
-    isVerified: boolean
+    isVerified: boolean,
+    oauthProvider: string
 }
 
 const userSchema : Schema<User> = new Schema({
@@ -28,7 +29,11 @@ const userSchema : Schema<User> = new Schema({
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
+    },
+    oauthProvider:{
+        type: String,
+        enum: ["google","github"],
+        default: null
     },
     fullName:{
         type: String,
@@ -40,11 +45,9 @@ const userSchema : Schema<User> = new Schema({
     },
     verifyCode:{
         type: String,
-        required: true
     },
     verifyCodeExpiry:{
         type: Date,
-        required: true,
     },
     isVerified:{
         type: Boolean,
@@ -52,6 +55,16 @@ const userSchema : Schema<User> = new Schema({
     }
 
 },{timestamps: true});
+
+userSchema.pre("save", function(next){
+    if(!this.password && !this.oauthProvider){
+        next(new Error("Password is required for non-OAuth users."))
+    }
+    else{
+        console.log(this.isVerified,"isverified");
+        next();
+    }
+})
 
 const User = (mongoose.models.User as mongoose.Model<User>) || (mongoose.model<User>("User", userSchema));
 
