@@ -8,6 +8,7 @@ import {Loader2} from "lucide-react"
 import {
   IconBrandGithub,
   IconBrandGoogle,
+  IconBrandOnlyfans,
 } from "@tabler/icons-react";
 import {useForm} from "react-hook-form";
 import * as z from "zod";
@@ -19,8 +20,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
-export default function SignIn() {
+export default function Signup() {
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -104,7 +106,7 @@ export default function SignIn() {
 
           <Form {...form}>
               <form
-                  className="mt-8"
+                  className="mt-8 z-10"
                   onSubmit={form.handleSubmit(handleSubmitFunction)}
               >
                   <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
@@ -212,9 +214,9 @@ export default function SignIn() {
                   </Button>
               </form>
           </Form>
-          <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+          <div className="bg-gradient-to-r z-10 from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
-          <div className="flex flex-col space-y-4">
+          <div className="flex flex-col z-10 space-y-4">
               <button
                   className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
                   type="submit"
@@ -238,6 +240,7 @@ export default function SignIn() {
                   <BottomGradient />
               </button>
           </div>
+          <BackgroundBeams/>
       </div>
   );
 }
