@@ -92,7 +92,9 @@ export default function Signup() {
   }
 
   return (
-      <div className="max-w-md w-full mt-[5.5rem] mx-auto rounded-2xl p-4 md:px-8 md:pb-12 md:pt-6 shadow-input bg-white dark:bg-black flex flex-col ">
+    <div className="flex flex-col items-center justify-center min-h-svh">
+      <BackgroundBeams className="z-0 "/>
+      <div className="max-w-md w-full mt-[5.5rem] mx-auto rounded-2xl p-4 md:px-8 md:pb-12 md:pt-6 shadow-input bg-white dark:bg-black flex flex-col">
           <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
               Welcome to{" "}
               <span className="bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500 bg-clip-text text-transparent">
@@ -109,62 +111,6 @@ export default function Signup() {
                   className="mt-8 z-10"
                   onSubmit={form.handleSubmit(handleSubmitFunction)}
               >
-                  <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-                      <FormField
-                          control={form.control}
-                          name="fullName"
-                          render={({ field }) => (
-                              <FormItem>
-                                  <LabelInputContainer>
-                                      <FormLabel>Name</FormLabel>
-                                      <FormControl>
-                                          <Input
-                                              placeholder="Tyler"
-                                              {...field}
-                                          />
-                                      </FormControl>
-                                  </LabelInputContainer>
-                              </FormItem>
-                          )}
-                      />
-                      <FormField
-                          control={form.control}
-                          name="username"
-                          render={({ field }) => (
-                              <FormItem>
-                                  <LabelInputContainer>
-                                      <FormLabel>Username</FormLabel>
-                                      <FormControl>
-                                          <Input
-                                              {...field}
-                                              onChange={(e) => {
-                                                  field.onChange(e);
-                                                  debounced(e.target.value);
-                                              }}
-                                              placeholder="Durden271"
-                                          />
-                                      </FormControl>
-                                  </LabelInputContainer>
-                                  {isCheckingUsername && (
-                                      <Loader2 className="animate-spin" />
-                                  )}
-                                  {!isCheckingUsername && usernameMessage && (
-                                      <p
-                                          className={`text-sm ${
-                                              usernameMessage ===
-                                              "Username is unique"
-                                                  ? "text-green-500"
-                                                  : "text-red-500"
-                                          }`}
-                                      >
-                                          {usernameMessage}
-                                      </p>
-                                  )}
-                                  <FormMessage/>
-                              </FormItem>
-                          )}
-                      />
-                  </div>
                   <FormField
                     control={form.control}
                     name="email"
@@ -240,8 +186,8 @@ export default function Signup() {
                   <BottomGradient />
               </button>
           </div>
-          <BackgroundBeams/>
       </div>
+    </div>
   );
 }
 
