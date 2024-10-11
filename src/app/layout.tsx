@@ -18,14 +18,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html className="dark" lang="en">
-      <AuthProvider>
-        <body className={`${inter.className} bg-gradient-to-b from-transparent to-white dark:from-transparent dark:to-black`}>
-          <Navbar/>
-          <Toaster />
-          {children}
-        </body>
-      </AuthProvider>
-    </html>
+    <AuthProvider>
+        <html className="dark" lang="en">
+          <body className={`${inter.className} bg-gradient-to-b from-transparent to-white dark:from-transparent dark:to-black`}>
+            <Navbar/>
+            <Toaster />
+            {children}
+          </body>
+      </html>
+    </AuthProvider>
   );
 }

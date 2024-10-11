@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {signIn} from "next-auth/react"
@@ -8,92 +7,61 @@ import {Loader2} from "lucide-react"
 import {
   IconBrandGithub,
   IconBrandGoogle,
-  IconBrandOnlyfans,
 } from "@tabler/icons-react";
 import {useForm} from "react-hook-form";
 import * as z from "zod";
 import {zodResolver} from "@hookform/resolvers/zod"
-import { useDebounceCallback } from "usehooks-ts";
-import axios, { AxiosError } from "axios";
-import { signupSchema } from "@/schemas/signUpSchema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { BackgroundBeams } from "@/components/ui/background-beams";
+import { signInSchema } from "@/schemas/signInSchema";
+import axios from "axios";
 
 export default function Signup() {
 
-  const form = useForm<z.infer<typeof signupSchema>>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
     defaultValues:{
-      username: "",
-      email: "",
-      password: "",
-      fullName: ""
+      identifier: "",
+      password: ""
     }
   });
   const {toast} = useToast();
   const router = useRouter();
   
-  const [username, setUsername] = useState("");
-  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [usernameMessage, setUsernameMessage] = useState("");
+  
 
-  const debounced = useDebounceCallback(setUsername, 300);
-
-  useEffect(() => {
-    const checkUsernameUnique = async() => {
-        if(username){
-            setIsCheckingUsername(true);
-            setUsernameMessage(''); // Resetting message
-            try {
-                const response = await axios.get(`/api/check-username-unique?username=${username}`)
-                console.log(response.data.meessage);
-                setUsernameMessage(response.data.message);
-            } catch (error) {
-                const axiosError = error as AxiosError<any>;
-                setUsernameMessage(axiosError.response?.data.message ?? 'Error checking username');
-            }
-            finally{
-              setIsCheckingUsername(false);
-            }
-        }
-    }
-    checkUsernameUnique();
-  },[username]);
-
-  const handleSubmitFunction = async(data : z.infer<typeof signupSchema>) => {
+  const handleSubmitFunction = async(data : z.infer<typeof signInSchema>) => {
     setIsSubmitting(true);
-    try {
-      const response = await axios.post("/api/sign-up", data);
-      toast({
-        title: 'Success',
-        description: response.data.message
-      })
-      router.replace(`/verify/${username}`);
-      // router.replace(`/`);
-      setIsSubmitting(false);
-    } catch (error) {
-        console.log("inside error ");
-        console.error('Error during sign-up:', error);
-        const axiosError = error as AxiosError<any>;
-        let errorMessage = axiosError.response?.data.message;
-        console.log("errorMessage:",errorMessage)
+    const response = await signIn('credentials',
+      {
+        redirect: false,
+        identifier: data.identifier,
+        password: data.password,
+      },
+    );
+    console.log(response,"inside signin");
+      if(response?.error){
         toast({
-          title: "Signup failed",
-          description: errorMessage,
-          variant: "destructive"
-        });
-        console.log("after toast message");
-        setIsSubmitting(false);
+            title: 'Error',
+            description: "Invalid Credentials",
+            variant: "destructive"
+        })
     }
+    if(response?.url){
+        const res = await axios.post("/api/getUserId", {
+          
+        })
+        router.replace('/');
+    }
+    setIsSubmitting(false);
   }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-svh">
-      <BackgroundBeams className="z-0 "/>
+      {/* <BackgroundBeams className="z-0 "/> */}
       <div className="max-w-md w-full mt-[5.5rem] mx-auto rounded-2xl p-4 md:px-8 md:pb-12 md:pt-6 shadow-input bg-white dark:bg-black flex flex-col">
           <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
               Welcome to{" "}
@@ -113,11 +81,11 @@ export default function Signup() {
               >
                   <FormField
                     control={form.control}
-                    name="email"
+                    name="identifier"
                     render={({ field }) => (
                       <FormItem>
                         <LabelInputContainer className="mb-4">
-                          <FormLabel>Email Address</FormLabel>
+                          <FormLabel>Email / Username</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="abc@example.com"
@@ -152,9 +120,9 @@ export default function Signup() {
                       type="submit"
                   >
                       {isSubmitting ? (
-                          <Loader2 className="animate-spin" />
+                          <Loader2 className="animate-spin mx-auto" />
                       ) : (
-                          `Sign up `
+                          `Sign in `
                       )}
                       <BottomGradient />
                   </Button>

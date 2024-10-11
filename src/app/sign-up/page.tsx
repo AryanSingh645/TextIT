@@ -92,6 +92,8 @@ export default function Signup() {
   }
 
   return (
+    <div className="flex flex-col items-center justify-center min-h-svh">
+      <BackgroundBeams className="z-0"/>
       <div className="max-w-md w-full mt-[5.5rem] mx-auto rounded-2xl p-4 md:px-8 md:pb-12 md:pt-6 shadow-input bg-white dark:bg-black flex flex-col">
           <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
               Welcome to{" "}
@@ -206,7 +208,7 @@ export default function Signup() {
                       type="submit"
                   >
                       {isSubmitting ? (
-                          <Loader2 className="animate-spin" />
+                          <Loader2 className="animate-spin mx-auto" />
                       ) : (
                           `Sign up `
                       )}
@@ -240,8 +242,8 @@ export default function Signup() {
                   <BottomGradient />
               </button>
           </div>
-          <BackgroundBeams/>
       </div>
+    </div>
   );
 }
 

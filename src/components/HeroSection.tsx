@@ -1,9 +1,22 @@
-import React from 'react'
+"use client"
+import React, { useEffect, useState } from 'react'
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 import { Button } from './ui/moving-border';
 import { IconArrowBarToRight } from '@tabler/icons-react';
+import { signOut, useSession } from 'next-auth/react';
+import { User } from 'next-auth';
 
 function HeroSection() {
+    const {data : session} = useSession();
+    const user : User = session?.user as User;
+    console.log(user,"user in hero");
+
+    const [name, setName] = useState("");
+    useEffect(() => {
+        setName(user?.username || "");
+    },[user])
+
+
   return (
       <BackgroundBeamsWithCollision className="min-h-screen flex flex-col gap-10">
           <h2 className="text-2xl flex flex-col relative z-20 md:text-4xl lg:text-7xl font-bold text-center text-black dark:text-white font-sans tracking-tight ">
@@ -24,6 +37,14 @@ function HeroSection() {
               Try Now
               <IconArrowBarToRight className="ml-3" />
           </Button>
+          <span>
+            {session ? 
+                (<div>
+                    {`welcome ${name}`}
+                    <button onClick={() => {signOut()}}>Logout</button>
+                </div>) 
+                : (null)}
+          </span>
       </BackgroundBeamsWithCollision>
   );
 }

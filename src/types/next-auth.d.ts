@@ -1,4 +1,6 @@
-import "next-auth"
+// import "next-auth"
+// import { DefaultSession } from "next-auth";
+import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
     interface User {
@@ -15,7 +17,7 @@ declare module "next-auth" {
             username?: string;
             fullName?: string;
             avatar?: string;
-        }
+        } & DefaultSession['user'];
     }
 }
 
@@ -29,5 +31,3 @@ declare module "next-auth/jwt" {
         avatar?: string;
     }
 }
-
-declare module "next-auth/"
